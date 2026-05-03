@@ -22,6 +22,7 @@ export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
   const navigate = useNavigate();
 
   const submit = async (e: React.FormEvent) => {
@@ -29,9 +30,15 @@ export default function Auth() {
     const parsed = schema.safeParse({ email, password });
     if (!parsed.success) { toast.error(parsed.error.errors[0].message); return; }
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) toast.error(error.message);
-    else { toast.success("Welcome back"); navigate("/"); }
+    if (isSignUp) {
+      const { error } = await supabase.auth.signUp({ email, password });
+      if (error) toast.error(error.message);
+      else { toast.success("Check your email for confirmation"); }
+    } else {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) toast.error(error.message);
+      else { toast.success("Welcome back"); navigate("/"); }
+    }
     setLoading(false);
   };
 
@@ -40,9 +47,9 @@ export default function Auth() {
       <div className="w-full max-w-md">
         <Link to="/" className="text-sm text-muted-foreground hover:text-ink">← Back to gallery</Link>
         <div className="mt-6 bg-card border border-border rounded-md p-10 shadow-soft">
-          <h1 className="text-4xl text-ink mb-2">Admin Access</h1>
+          <h1 className="text-4xl text-ink mb-2">{isSignUp ? "Create Admin Account" : "Admin Access"}</h1>
           <p className="text-muted-foreground mb-8 text-sm">
-            Sign in to manage your gallery.
+            {isSignUp ? "Sign up to create your admin account." : "Sign in to manage your gallery."}
           </p>
           <form onSubmit={submit} className="space-y-5">
             <div>
@@ -55,9 +62,18 @@ export default function Auth() {
               <p className="text-xs text-muted-foreground mt-1">Min 12 chars, uppercase, lowercase, number, special char</p>
             </div>
             <Button type="submit" disabled={loading} className="w-full bg-ink hover:bg-ink/90 text-cream">
-              {loading ? "..." : "Sign in"}
+              {loading ? "..." : (isSignUp ? "Sign up" : "Sign in")}
             </Button>
           </form>
+          <div className="mt-4 text-center">
+            <button
+              type="button"
+              onClick={() => setIsSignUp(!isSignUp)}
+              className="text-sm text-muted-foreground hover:text-ink underline"
+            >
+              {isSignUp ? "Already have an account? Sign in" : "Need an account? Sign up"}
+            </button>
+          </div>
         </div>
       </div>
     </main>
