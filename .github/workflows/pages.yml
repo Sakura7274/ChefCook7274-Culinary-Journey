@@ -1,5 +1,10 @@
 name: Deploy GitHub Pages
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 on:
   push:
     branches:
@@ -17,15 +22,11 @@ jobs:
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v4
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-pages-artifact@v5
         with:
           path: ./dist
   deploy-pages:
     needs: deploy
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
     steps:
       - uses: actions/deploy-pages@v1
